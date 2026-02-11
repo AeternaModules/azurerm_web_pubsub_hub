@@ -22,7 +22,7 @@ EOT
   type = map(object({
     name                          = string
     web_pubsub_id                 = string
-    anonymous_connections_enabled = optional(bool, false)
+    anonymous_connections_enabled = optional(bool) # Default: false
     event_handler = optional(object({
       auth = optional(object({
         managed_identity_id = string
