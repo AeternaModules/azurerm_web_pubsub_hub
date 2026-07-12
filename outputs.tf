@@ -1,3 +1,7 @@
+output "web_pubsub_hubs_id" {
+  description = "Map of id values across all web_pubsub_hubs, keyed the same as var.web_pubsub_hubs"
+  value       = { for k, v in azurerm_web_pubsub_hub.web_pubsub_hubs : k => v.id }
+}
 output "web_pubsub_hubs_anonymous_connections_enabled" {
   description = "Map of anonymous_connections_enabled values across all web_pubsub_hubs, keyed the same as var.web_pubsub_hubs"
   value       = { for k, v in azurerm_web_pubsub_hub.web_pubsub_hubs : k => v.anonymous_connections_enabled }
