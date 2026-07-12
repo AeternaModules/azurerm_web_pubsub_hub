@@ -6,7 +6,7 @@ resource "azurerm_web_pubsub_hub" "web_pubsub_hubs" {
   anonymous_connections_enabled = each.value.anonymous_connections_enabled
 
   dynamic "event_handler" {
-    for_each = each.value.event_handler != null ? [each.value.event_handler] : []
+    for_each = each.value.event_handler != null ? each.value.event_handler : []
     content {
       dynamic "auth" {
         for_each = event_handler.value.auth != null ? [event_handler.value.auth] : []
@@ -21,7 +21,7 @@ resource "azurerm_web_pubsub_hub" "web_pubsub_hubs" {
   }
 
   dynamic "event_listener" {
-    for_each = each.value.event_listener != null ? [each.value.event_listener] : []
+    for_each = each.value.event_listener != null ? each.value.event_listener : []
     content {
       eventhub_name            = event_listener.value.eventhub_name
       eventhub_namespace_name  = event_listener.value.eventhub_namespace_name
