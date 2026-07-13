@@ -38,34 +38,46 @@ EOT
       user_event_name_filter   = optional(list(string))
     })))
   }))
-  # --- Unconfirmed validation candidates, derived from azurerm_web_pubsub_hub's provider source ---
-  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
-  # or a path that crosses a list-typed block (needs its own for_each wrapping).
-  # Review, translate into a real validation{} block above, and delete once confirmed.
-  # path: name
-  #   source:    validate.WebPubSubHubName: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
-  # path: web_pubsub_id
-  #   source:    [from validationFunctionForResourceID] !ok
-  # path: web_pubsub_id
-  #   source:    [from validationFunctionForResourceID] err != nil
-  # path: event_handler.url_template
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: event_handler.user_event_pattern
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: event_handler.system_events[*]
-  #   condition: contains(["connect", "connected", "disconnected"], value)
-  #   message:   must be one of: connect, connected, disconnected
-  # path: event_handler.auth.managed_identity_id
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: event_listener.system_event_name_filter[*]
-  #   condition: contains(["connected", "disconnected"], value)
-  #   message:   must be one of: connected, disconnected
-  # path: event_listener.eventhub_namespace_name
-  #   source:    eventhubValidate.ValidateEventHubNamespaceName: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
-  # path: event_listener.eventhub_name
-  #   source:    eventhubValidate.ValidateEventHubName: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  validation {
+    condition = alltrue([
+      for k, v in var.web_pubsub_hubs : (
+        v.event_handler == null || alltrue([for item in v.event_handler : (length(item.url_template) > 0)])
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.web_pubsub_hubs : (
+        v.event_handler == null || alltrue([for item in v.event_handler : (item.user_event_pattern == null || (length(item.user_event_pattern) > 0))])
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.web_pubsub_hubs : (
+        v.event_handler == null || alltrue([for item in v.event_handler : (item.system_events == null || (alltrue([for x in item.system_events : contains(["connect", "connected", "disconnected"], x)])))])
+      )
+    ])
+    error_message = "must be one of: connect, connected, disconnected"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.web_pubsub_hubs : (
+        v.event_handler == null || alltrue([for item in v.event_handler : (item.auth == null || (length(item.auth.managed_identity_id) > 0))])
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.web_pubsub_hubs : (
+        v.event_listener == null || alltrue([for item in v.event_listener : (item.system_event_name_filter == null || (alltrue([for x in item.system_event_name_filter : contains(["connected", "disconnected"], x)])))])
+      )
+    ])
+    error_message = "must be one of: connected, disconnected"
+  }
+  # Note: 5 additional provider-side validators are enforced at apply time but not mirrored as validation{} blocks here (bespoke or non-mechanically-translatable).
 }
 
