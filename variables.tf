@@ -22,7 +22,7 @@ EOT
   type = map(object({
     name                          = string
     web_pubsub_id                 = string
-    anonymous_connections_enabled = optional(bool) # Default: false
+    anonymous_connections_enabled = optional(bool)
     event_handler = optional(list(object({
       auth = optional(object({
         managed_identity_id = string
@@ -44,6 +44,10 @@ EOT
   # Review, translate into a real validation{} block above, and delete once confirmed.
   # path: name
   #   source:    validate.WebPubSubHubName: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: web_pubsub_id
+  #   source:    [from validationFunctionForResourceID] !ok
+  # path: web_pubsub_id
+  #   source:    [from validationFunctionForResourceID] err != nil
   # path: event_handler.url_template
   #   condition: length(value) > 0
   #   message:   must not be empty
